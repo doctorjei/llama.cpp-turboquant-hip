@@ -15194,10 +15194,17 @@ static void ggml_backend_vk_device_get_props(ggml_backend_dev_t dev, struct ggml
     props->type        = ggml_backend_vk_device_get_type(dev);
     props->device_id   = ctx->pci_bus_id.empty() ? nullptr : ctx->pci_bus_id.c_str();
     ggml_backend_vk_device_get_memory(dev, &props->memory_free, &props->memory_total);
+
+    // Zero-copy import of host memory (e.g. mmap'd weights) is only a win on
+    // integrated GPUs where CPU and GPU share physical RAM. Requires
+    // VK_EXT_external_memory_host for the actual import path.
+    const vk_device & device = ggml_vk_get_device(ctx->device);
+    const bool host_ptr_supported = ctx->is_integrated_gpu && device->external_memory_host;
+
     props->caps = {
         /* .async                 = */ true,
         /* .host_buffer           = */ true,
-        /* .buffer_from_host_ptr  = */ false,
+        /* .buffer_from_host_ptr  = */ host_ptr_supported,
         /* .events                = */ true,
     };
 }
