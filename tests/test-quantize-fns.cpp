@@ -87,7 +87,7 @@ static float dot_product_error(const ggml_type_traits * qfns, const ggml_type_tr
     GGML_UNUSED(qfns);
 
     std::vector<uint8_t> tmp_q1(2*test_size);
-    std::vector<uint8_t> tmp_q2(2*test_size);
+    std::vector<uint8_t> tmp_q2(4*test_size);
 
     const auto * vdot = ggml_get_type_traits_cpu(qfns_cpu->vec_dot_type);
 
